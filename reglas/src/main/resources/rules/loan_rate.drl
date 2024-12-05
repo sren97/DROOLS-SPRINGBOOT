@@ -1,0 +1,117 @@
+import com.udea.reglas.model.Participant; 
+global com.udea.reglas.model.Rate rate; 
+
+dialect "mvel"
+
+rule "Cheking age" 
+    when 
+        Participant(age < 18) 
+    then 
+        rate.setLoanStatus("Rejected - Too Young"); 
+        rate.setLoanRate(999); 
+    end
+rule "Cheking Years of Credit History less than 2"
+    when
+        Participant(yearsOfCreditHistory < 2, age >= 18)
+    then
+        rate.setLoanStatus("Rejected - Too Short Credit History");
+        rate.setLoanRate(999);
+    end
+rule "Checking Existing Debt Against Lean amount" 
+    when 
+        Participant(loanAmount > (2 * existingDebt), age >= 18, yearsOfCreditHistory >= 2) 
+    then 
+        rate.setLoanStatus("Rejected - Too Much Debt"); 
+        rate.setLoanRate(999); 
+    end
+rule  "Checking Annual Salary is grater than 50000" 
+    when 
+        Participant(loanAmount > (2 * existingDebt),annualSalary <= 50000, age >= 18, yearsOfCreditHistory >= 2) 
+    then 
+        rate.setLoanStatus("Rejected - Too low salary"); 
+        rate.setLoanRate(999); 
+    end
+rule "Checking Credit Inquiries more than 5"
+    when
+        Participant(creditInquiries > 5 , annualSalary > 50000 , loanAmount < (2 * existingDebt), age >= 18, yearsOfCreditHistory >= 2)
+    then
+        rate.setLoanStatus("Rejected - Too Many Credit Inquiries");
+        rate.setLoanRate(999);
+    end 
+rule "Checking Credit Score less than 550" 
+    when 
+        Participant(creditScore< 550 , annualSalary > 50000 , loanAmount < (2 * existingDebt), age >= 18, creditInquiries <= 5, yearsOfCreditHistory >= 2) 
+    then 
+        rate.setLoanStatus("Rejected"); 
+        rate.setLoanRate(999); 
+    end 
+rule "Checking Credit Score less than 650" 
+    when 
+        Participant(creditScore< 650  && creditScore >=550 , annualSalary > 50000 , loanAmount < (2 * existingDebt), age >= 18, creditInquiries <= 5, yearsOfCreditHistory >= 2) 
+    then 
+        rate.setLoanStatus("Approved"); 
+        rate.setLoanRate(7.25); 
+    end 
+rule "Checking Credit Score less than 750" 
+    when 
+        Participant(creditScore< 750  && creditScore >=650 , annualSalary > 50000 , loanAmount < (2 * existingDebt), age >= 18, creditInquiries <= 5, yearsOfCreditHistory >= 2) 
+    then 
+        rate.setLoanStatus("Approved"); 
+        rate.setLoanRate(6.25); 
+    end 
+rule "Checking Credit Score greater than 750" 
+    when 
+        Participant(creditScore >= 750 , annualSalary > 50000 , loanAmount < (2 * existingDebt), age >= 18, creditInquiries <= 5, yearsOfCreditHistory >= 2) 
+    then 
+        rate.setLoanStatus("Approved"); 
+    rate.setLoanRate(5.25); 
+    end
+rule "Checking Loan Purpose for Education with less than 550 credit score and more than 2 years of credit history"
+    when
+        Participant(loanPurpose == "Education", creditScore< 650  && creditScore >=550 , annualSalary > 50000 , loanAmount < (2 * existingDebt), age >= 18, creditInquiries <= 5, yearsOfCreditHistory >= 2)
+    then
+        rate.setLoanStatus("Approved");
+        rate.setLoanRate(6.65);
+    end
+rule "Checking Loan Purpose for Education with less than 550 credit score and less than 2 years of credit history" 
+    when
+        Participant(loanPurpose == "Education", creditScore< 650  && creditScore >=550 , annualSalary > 50000 , loanAmount < (2 * existingDebt), age >= 18, creditInquiries <= 5, yearsOfCreditHistory < 2)
+    then
+        rate.setLoanStatus("Approved");
+        rate.setLoanRate(6.8);
+    end
+rule "Checking loan term for 10 years or more and between 550 and 650 credit score"
+    when
+        Participant(loanTerm  >= 10, creditScore< 650  && creditScore >=550 , annualSalary > 50000 , loanAmount < (2 * existingDebt), age >= 18, creditInquiries <= 5, yearsOfCreditHistory >= 2)
+    then
+        rate.setLoanStatus("Approved");
+        rate.setLoanRate(5.0);
+    end
+rule "Checking loan term for 10 years or more and between 650 and 750 credit score"
+    when
+        Participant(loanTerm  >= 10, creditScore< 750  && creditScore >=650 , annualSalary > 50000 , loanAmount < (2 * existingDebt), age >= 18, creditInquiries <= 5, yearsOfCreditHistory >= 2)
+    then
+        rate.setLoanStatus("Approved");
+        rate.setLoanRate(4.5);
+    end
+rule "Checking loan term for 10 years or more and greater than 750 credit score"
+    when
+        Participant(loanTerm  >= 10, creditScore >= 750 , annualSalary > 50000 , loanAmount < (2 * existingDebt), age >= 18, creditInquiries <= 5, yearsOfCreditHistory >= 2)
+    then
+        rate.setLoanStatus("Approved");
+        rate.setLoanRate(4.0);
+    end
+rule "Checking Loan Purpose for Debt Consolidation with more than 600 credit score and more than 2 years of credit history"
+    when
+        Participant(loanPurpose == "Debt Consolidation", creditScore >= 600 , annualSalary > 50000 , loanAmount < (2 * existingDebt), age >= 18, creditInquiries <= 5, yearsOfCreditHistory >= 2)
+    then
+        rate.setLoanStatus("Approved");
+        rate.setLoanRate(4.9);
+    end
+rule "Checking Loan Purpose for Debt Consolidation with less than 600 credit score and less than 2 years of credit history"
+    when
+        Participant(loanPurpose == "Debt Consolidation", creditScore < 600 && creditScore >= 550 , annualSalary > 50000 , loanAmount < (2 * existingDebt), age >= 18, creditInquiries <= 5, yearsOfCreditHistory >= 2)
+    then
+        rate.setLoanStatus("Approved");
+        rate.setLoanRate(5.4);
+    end
