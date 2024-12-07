@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Data
 public class Participant {
-    
+
     private String name;
     private int age;
     private int creditScore;
@@ -19,8 +19,5 @@ public class Participant {
     private int yearsOfCreditHistory;
     private String loanPurpose;
     private int loanTerm;
-    private boolean entrepreneur;
-    private boolean ruralEntrepreneur;
-    
 
 }
